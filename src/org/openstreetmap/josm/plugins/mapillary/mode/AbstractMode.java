@@ -5,16 +5,13 @@ import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
-import java.util.Calendar;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.NavigatableComponent.ZoomChangeListener;
 import org.openstreetmap.josm.plugins.mapillary.MapillaryAbstractImage;
 import org.openstreetmap.josm.plugins.mapillary.MapillaryData;
 import org.openstreetmap.josm.plugins.mapillary.MapillaryLayer;
-import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader;
 
 /**
  * Superclass for all the mode of the {@link MapillaryLayer}.
@@ -22,13 +19,9 @@ import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader;
  * @author nokutu
  * @see MapillaryLayer
  */
-public abstract class AbstractMode extends MouseAdapter implements
-  ZoomChangeListener {
-
-  private static final int DOWNLOAD_COOLDOWN = 2000;
+public abstract class AbstractMode extends MouseAdapter {
 
   protected MapillaryData data = MapillaryLayer.getInstance().getData();
-  private static SemiautomaticThread semiautomaticThread = new SemiautomaticThread();
 
   /**
    * Cursor that should become active when this mode is activated.
@@ -61,50 +54,4 @@ public abstract class AbstractMode extends MouseAdapter implements
    */
   public abstract void paint(Graphics2D g, MapView mv, Bounds box);
 
-  @Override
-  public void zoomChanged() {
-    if (MapillaryDownloader.getMode() == MapillaryDownloader.DOWNLOAD_MODE.VISIBLE_AREA) {
-      if (!semiautomaticThread.isAlive())
-        semiautomaticThread.start();
-      semiautomaticThread.moved();
-    }
-  }
-
-  /**
-   * Resets the semiautomatic mode thread.
-   */
-  public static void resetThread() {
-    semiautomaticThread.interrupt();
-    semiautomaticThread = new SemiautomaticThread();
-  }
-
-  private static class SemiautomaticThread extends Thread {
-
-    /** If in semiautomatic mode, the last Epoch time when there was a download */
-    private long lastDownload;
-
-    private boolean moved;
-
-    @Override
-    public void run() {
-      while (true) {
-        if (this.moved
-          && Calendar.getInstance().getTimeInMillis() - this.lastDownload >= DOWNLOAD_COOLDOWN) {
-          this.lastDownload = Calendar.getInstance().getTimeInMillis();
-          MapillaryDownloader.downloadVisibleArea();
-          this.moved = false;
-          MapillaryData.dataUpdated();
-        }
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-          return;
-        }
-      }
-    }
-
-    public void moved() {
-      this.moved = true;
-    }
-  }
 }

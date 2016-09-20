@@ -25,7 +25,6 @@ import javax.swing.tree.TreeSelectionModel;
 import org.openstreetmap.josm.gui.SideButton;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
 import org.openstreetmap.josm.plugins.mapillary.MapillaryAbstractImage;
-import org.openstreetmap.josm.plugins.mapillary.MapillaryImage;
 import org.openstreetmap.josm.plugins.mapillary.MapillaryLayer;
 import org.openstreetmap.josm.plugins.mapillary.MapillaryLocationChangeset;
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillarySubmitCurrentChangesetAction;

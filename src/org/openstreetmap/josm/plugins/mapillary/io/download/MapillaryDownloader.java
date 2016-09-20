@@ -131,7 +131,7 @@ public final class MapillaryDownloader {
     if (getMode() != DOWNLOAD_MODE.VISIBLE_AREA && getMode() != DOWNLOAD_MODE.MANUAL_ONLY) {
       throw new IllegalStateException("Download mode must be 'visible area' or 'manual only'");
     }
-    Bounds view = Main.map.mapView.getRealBounds();
+    Bounds view = Main.map.mapView.getState().getViewArea().getCornerBounds();
     if (view.getArea() > MAX_AREA) {
       return;
     }
@@ -190,10 +190,12 @@ public final class MapillaryDownloader {
     if (getMode() != DOWNLOAD_MODE.OSM_AREA) {
       throw new IllegalStateException("Must be in automatic mode.");
     }
-    Main.getLayerManager().getEditLayer().data.getDataSourceBounds().stream().filter(bounds -> !MapillaryLayer.getInstance().getData().getBounds().contains(bounds)).forEach(bounds -> {
-      MapillaryLayer.getInstance().getData().getBounds().add(bounds);
-      MapillaryDownloader.getImages(bounds.getMin(), bounds.getMax());
-    });
+    Main.getLayerManager().getEditLayer().data.getDataSourceBounds().stream()
+      .filter(bounds -> !MapillaryLayer.getInstance().getData().getBounds().contains(bounds))
+      .forEach(bounds -> {
+        MapillaryLayer.getInstance().getData().getBounds().add(bounds);
+        MapillaryDownloader.getImages(bounds.getMin(), bounds.getMax());
+      });
   }
 
   /**

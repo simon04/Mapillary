@@ -41,6 +41,7 @@ import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.preferences.ColorProperty;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.NavigatableComponent;
+import org.openstreetmap.josm.gui.NavigatableComponent.ZoomChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.AbstractModifiableLayer;
@@ -69,7 +70,7 @@ import org.openstreetmap.josm.plugins.mapillary.utils.MapillaryUtils;
  * @author nokutu
  */
 public final class MapillaryLayer extends AbstractModifiableLayer implements
-  DataSetListener, ActiveLayerChangeListener {
+  DataSetListener, ActiveLayerChangeListener, ZoomChangeListener {
 
   /** Maximum distance for the red/blue lines. */
   public static final int SEQUENCE_MAX_JUMP_DISTANCE = Main.pref.getInteger(
@@ -109,12 +110,14 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
   private MapillaryLayer() {
     super(tr("Mapillary Images"));
     this.data = new MapillaryData();
+    NavigatableComponent.addZoomChangeListener(this);
   }
 
   /**
    * Initializes the Layer.
    */
   private void init() {
+    zoomChanged();
     if (Main.main != null && Main.map.mapView != null) {
       setMode(new SelectMode());
       Main.getLayerManager().addLayer(this);
@@ -124,9 +127,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
       }
       if (MapillaryDownloader.getMode() == DOWNLOAD_MODE.OSM_AREA) {
         MapillaryDownloader.downloadOSMArea();
-      }
-      if (MapillaryDownloader.getMode() == DOWNLOAD_MODE.VISIBLE_AREA) {
-        this.mode.zoomChanged();
       }
     }
     // Does not execute when in headless mode
@@ -158,14 +158,12 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
     if (this.mode != null) {
       Main.map.mapView.removeMouseListener(this.mode);
       Main.map.mapView.removeMouseMotionListener(this.mode);
-      NavigatableComponent.removeZoomChangeListener(this.mode);
     }
     this.mode = mode;
     if (mode != null) {
       Main.map.mapView.setNewCursor(mode.cursor, this);
       Main.map.mapView.addMouseListener(mode);
       Main.map.mapView.addMouseMotionListener(mode);
-      NavigatableComponent.addZoomChangeListener(mode);
       MapillaryUtils.updateHelpText();
     }
   }
@@ -235,7 +233,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
   public void destroy() {
     setMode(null);
     MapillaryRecord.getInstance().reset();
-    AbstractMode.resetThread();
     MapillaryDownloader.stopAll();
     MapillaryMainDialog.getInstance().setImage(null);
     MapillaryMainDialog.getInstance().updateImage();
@@ -575,6 +572,17 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
   public void visitBoundingBox(BoundingXYVisitor v) {
   }
 
+  /* (non-Javadoc)
+   * @see org.openstreetmap.josm.gui.NavigatableComponent.ZoomChangeListener#zoomChanged()
+   */
+  @Override
+  public void zoomChanged() {
+    if (MapillaryDownloader.getMode() == DOWNLOAD_MODE.VISIBLE_AREA) {
+      MapillaryDownloader.downloadVisibleArea(); // TODO: Limit maximum parallel downloads
+      MapillaryData.dataUpdated();
+    }
+  }
+
   /**
    * Threads that runs a delayed Mapillary download.
    *
@@ -604,9 +612,11 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      if (instance != null)
+      if (instance != null) {
         MapillaryRecord.getInstance().addCommand(
-          new CommandDelete(getData().getMultiSelectedImages()));
+          new CommandDelete(getData().getMultiSelectedImages())
+        );
+      }
     }
   }
 }
