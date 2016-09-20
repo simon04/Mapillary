@@ -22,7 +22,6 @@ import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryDownloadViewAct
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryExportAction;
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryImportAction;
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryImportIntoSequenceAction;
-import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryJoinAction;
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryUploadAction;
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryWalkAction;
 import org.openstreetmap.josm.plugins.mapillary.actions.MapillaryZoomAction;
@@ -31,10 +30,10 @@ import org.openstreetmap.josm.plugins.mapillary.gui.MapillaryFilterDialog;
 import org.openstreetmap.josm.plugins.mapillary.gui.MapillaryHistoryDialog;
 import org.openstreetmap.josm.plugins.mapillary.gui.MapillaryMainDialog;
 import org.openstreetmap.josm.plugins.mapillary.gui.MapillaryPreferenceSetting;
+import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader;
 import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader.DOWNLOAD_MODE;
 import org.openstreetmap.josm.plugins.mapillary.oauth.MapillaryUser;
 import org.openstreetmap.josm.tools.ImageProvider;
-import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader;
 
 /**
  * This is the main class of the Mapillary plugin.
@@ -64,7 +63,6 @@ public class MapillaryPlugin extends Plugin {
   private static final MapillaryZoomAction zoomAction = new MapillaryZoomAction();
   private static final MapillaryDownloadViewAction downloadViewAction = new MapillaryDownloadViewAction();
   private static final MapillaryImportIntoSequenceAction importIntoSequenceAction = new MapillaryImportIntoSequenceAction();
-  private static final MapillaryJoinAction joinAction = new MapillaryJoinAction();
   /** Walk action */
   private static final MapillaryWalkAction walkAction = new MapillaryWalkAction();
   /** Upload action */
@@ -82,8 +80,6 @@ public class MapillaryPlugin extends Plugin {
   private static final JMenuItem downloadViewMenu;
   /** Menu button for the {@link MapillaryImportIntoSequenceAction} action. */
   private static final JMenuItem importIntoSequenceMenu;
-  /** Menu button for the {@link MapillaryJoinAction} action. */
-  private static final JMenuItem joinMenu;
   /** Menu button for the {@link MapillaryWalkAction} action. */
   private static final JMenuItem walkMenu;
   /** Menu button for the {@link MapillaryUploadAction} action. */
@@ -97,7 +93,6 @@ public class MapillaryPlugin extends Plugin {
       zoomMenu = null;
       downloadViewMenu = null;
       importIntoSequenceMenu = null;
-      joinMenu = null;
       walkMenu = null;
       uploadMenu = null;
     } else {
@@ -113,8 +108,6 @@ public class MapillaryPlugin extends Plugin {
       downloadViewMenu.setEnabled(false);
       importIntoSequenceMenu = MainMenu.add(Main.main.menu.fileMenu, importIntoSequenceAction, false, 14);
       importIntoSequenceMenu.setEnabled(false);
-      joinMenu = MainMenu.add(Main.main.menu.dataMenu, joinAction, false);
-      joinMenu.setEnabled(false);
       walkMenu = MainMenu.add(Main.main.menu.moreToolsMenu, walkAction, false);
       walkMenu.setEnabled(false);
       uploadMenu = MainMenu.add(Main.main.menu.fileMenu, uploadAction, false, 14);
@@ -157,13 +150,6 @@ public class MapillaryPlugin extends Plugin {
    */
   public static JMenuItem getExportMenu() {
     return exportMenu;
-  }
-
-  /**
-   * @return the menu-item associated with the {@link MapillaryJoinAction}
-   */
-  public static JMenuItem getJoinMenu() {
-    return joinMenu;
   }
 
   /**

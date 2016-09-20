@@ -518,7 +518,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
     if (Main.getLayerManager().getActiveLayer() == this) {
       MapillaryUtils.updateHelpText();
     }
-    MapillaryPlugin.setMenuEnabled(MapillaryPlugin.getJoinMenu(), Main.getLayerManager().getActiveLayer() == this);
 
     if (Main.getLayerManager().getEditLayer() != e.getPreviousEditLayer()) {
       if (Main.getLayerManager().getEditLayer() != null) {
