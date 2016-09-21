@@ -23,24 +23,41 @@ public class SelectMode extends MapMode {
     super(I18n.tr("Select mode"), "mapillary-select", I18n.tr("Select, move and join images from Mapillary"), null, new Cursor(Cursor.DEFAULT_CURSOR));
   }
 
-  @Override
-  public void mouseClicked(MouseEvent e) {
-    if (e.getButton() != MouseEvent.BUTTON1 || e.getClickCount() != 1) {
-      return;
-    }
-    MapillaryAbstractImage clickedImg = MapillaryLayer.getInstance().getClosestImage(e.getPoint(), SNAP_DISTANCE);
-    MapillaryLayer.getInstance().getData().setSelectedImage(clickedImg);
-  }
 
   @Override
   public void enterMode() {
     super.enterMode();
     Main.map.mapView.addMouseListener(this);
+    Main.map.mapView.addMouseMotionListener(this);
   }
 
   @Override
   public void exitMode() {
     super.exitMode();
     Main.map.mapView.removeMouseListener(this);
+    Main.map.mapView.removeMouseMotionListener(this);
+  }
+
+  @Override
+  public void mouseClicked(MouseEvent e) {
+    super.mouseClicked(e);
+    if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
+      MapillaryAbstractImage nearestImg = MapillaryLayer.getInstance().getClosestImage(e.getPoint(), SNAP_DISTANCE);
+      MapillaryLayer.getInstance().getData().setSelectedImage(nearestImg);
+    }
+  }
+
+  @Override
+  public void mouseMoved(MouseEvent e) {
+    super.mouseMoved(e);
+    if (Main.pref.getBoolean("mapillary.hover-enabled", true)) {
+      MapillaryAbstractImage nearestImg = MapillaryLayer.getInstance().getClosestImage(e.getPoint(), SNAP_DISTANCE);
+      MapillaryAbstractImage highlightedImg = MapillaryLayer.getInstance().getData().getHighlightedImage();
+
+      if ((nearestImg == null && highlightedImg != null) || (nearestImg != null && !nearestImg.equals(highlightedImg))) {
+        MapillaryLayer.getInstance().getData().setHighlightedImage(nearestImg);
+        MapillaryLayer.getInstance().invalidate();
+      }
+    }
   }
 }
