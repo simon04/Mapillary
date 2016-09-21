@@ -20,6 +20,7 @@ import org.openstreetmap.josm.plugins.mapillary.MapillaryLayer;
  * @see MapillaryLayer
  */
 public abstract class AbstractMode extends MouseAdapter {
+  protected static final int SNAP_DISTANCE = 10;
 
   protected MapillaryData data = MapillaryLayer.getInstance().getData();
 
@@ -27,23 +28,6 @@ public abstract class AbstractMode extends MouseAdapter {
    * Cursor that should become active when this mode is activated.
    */
   public int cursor = Cursor.DEFAULT_CURSOR;
-
-  protected MapillaryAbstractImage getClosest(Point clickPoint) {
-    double snapDistance = 10;
-    double minDistance = Double.MAX_VALUE;
-    MapillaryAbstractImage closest = null;
-    for (MapillaryAbstractImage image : this.data.getImages()) {
-      Point imagePoint = Main.map.mapView.getPoint(image.getMovingLatLon());
-      imagePoint.setLocation(imagePoint.getX(), imagePoint.getY());
-      double dist = clickPoint.distanceSq(imagePoint);
-      if (minDistance > dist && clickPoint.distance(imagePoint) < snapDistance
-        && image.isVisible()) {
-        minDistance = dist;
-        closest = image;
-      }
-    }
-    return closest;
-  }
 
   /**
    * Paint the dataset using the engine set.

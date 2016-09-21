@@ -68,7 +68,7 @@ public class JoinMode extends AbstractMode {
     this.lastPos = e;
     if (!(Main.getLayerManager().getActiveLayer() instanceof MapillaryLayer))
       return;
-    MapillaryAbstractImage closestTemp = getClosest(e.getPoint());
+    MapillaryAbstractImage closestTemp = MapillaryLayer.getInstance().getClosestImage(e.getPoint(), SNAP_DISTANCE);
     this.data.setHighlightedImage(closestTemp);
     MapillaryData.dataUpdated();
   }

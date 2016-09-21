@@ -50,7 +50,7 @@ public class SelectMode extends AbstractMode {
     if (e.getButton() != MouseEvent.BUTTON1) {
       return;
     }
-    MapillaryAbstractImage closest = getClosest(e.getPoint());
+    MapillaryAbstractImage closest = MapillaryLayer.getInstance().getClosestImage(e.getPoint(), SNAP_DISTANCE);
     if (!(Main.getLayerManager().getActiveLayer() instanceof MapillaryLayer)
       && closest != null && Main.map.mapMode == Main.map.mapModeSelect) {
       this.lastClicked = this.closest;
@@ -146,7 +146,7 @@ public class SelectMode extends AbstractMode {
       return;
     }
 
-    MapillaryAbstractImage closestTemp = getClosest(e.getPoint());
+    MapillaryAbstractImage closestTemp = MapillaryLayer.getInstance().getClosestImage(e.getPoint(), SNAP_DISTANCE);
 
     if (closestTemp != null
       && Main.getLayerManager().getActiveLayer() instanceof OsmDataLayer

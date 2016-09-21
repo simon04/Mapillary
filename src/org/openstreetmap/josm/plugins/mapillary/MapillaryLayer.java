@@ -16,12 +16,12 @@ import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
@@ -445,6 +445,29 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
       LayerListDialog.getInstance().createDeleteLayerAction(),
       new LayerListPopup.InfoAction(this)
     };
+  }
+
+  /**
+   * Returns the image that is closest to the given point on the screen (this could be e.g. a position where the user
+   * clicked), but it must not be farther away than the given {@code maxDist}.
+   * @param p the given point on screen (relative to the MapView)
+   * @param maxDist the maximum distance the resulting image is allowed to have from the given point
+   * @return the {@link MapillaryAbstractImage} that is inside a circle of radius {@code maxDist} around point {@code p}
+   *   and nearer to point {@code p} than all other images. Only visible images are returned.
+   */
+  public MapillaryAbstractImage getClosestImage(Point2D p, double maxDist) {
+    MapillaryAbstractImage result = null;
+    double minDist = Double.MAX_VALUE;
+    for (MapillaryAbstractImage img : getData().getImages()) {
+      if (img.isVisible()) {
+        double dist = Main.map.mapView.getPoint2D(img.getLatLon()).distance(p);
+        if (dist <= maxDist && (result == null || dist < minDist)) {
+          result = img;
+          minDist = dist;
+        }
+      }
+    }
+    return result;
   }
 
   /**
