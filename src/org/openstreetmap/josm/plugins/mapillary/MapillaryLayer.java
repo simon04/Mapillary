@@ -56,9 +56,6 @@ import org.openstreetmap.josm.plugins.mapillary.history.MapillaryRecord;
 import org.openstreetmap.josm.plugins.mapillary.history.commands.CommandDelete;
 import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader;
 import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader.DOWNLOAD_MODE;
-import org.openstreetmap.josm.plugins.mapillary.mode.AbstractMode;
-import org.openstreetmap.josm.plugins.mapillary.mode.JoinMode;
-import org.openstreetmap.josm.plugins.mapillary.mode.SelectMode;
 import org.openstreetmap.josm.plugins.mapillary.utils.MapViewGeometryUtil;
 import org.openstreetmap.josm.plugins.mapillary.utils.MapillaryColorScheme;
 import org.openstreetmap.josm.plugins.mapillary.utils.MapillaryUtils;
@@ -101,9 +98,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
   /** {@link MapillaryData} object that stores the database. */
   private final MapillaryData data;
 
-  /** Mode of the layer. */
-  public AbstractMode mode;
-
   private volatile TexturePaint hatched;
   private final MapillaryLocationChangeset locationChangeset = new MapillaryLocationChangeset();
 
@@ -119,7 +113,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
   private void init() {
     zoomChanged();
     if (Main.main != null && Main.map.mapView != null) {
-      setMode(new SelectMode());
       Main.getLayerManager().addLayer(this);
       Main.getLayerManager().addActiveLayerChangeListener(this);
       if (Main.getLayerManager().getEditLayer() != null) {
@@ -146,25 +139,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
 
       MapillaryData.dataUpdated();
       getLocationChangeset().addChangesetListener(MapillaryChangesetDialog.getInstance());
-    }
-  }
-
-  /**
-   * Changes the mode the the given one.
-   *
-   * @param mode The mode that is going to be activated.
-   */
-  public void setMode(AbstractMode mode) {
-    if (this.mode != null) {
-      Main.map.mapView.removeMouseListener(this.mode);
-      Main.map.mapView.removeMouseMotionListener(this.mode);
-    }
-    this.mode = mode;
-    if (mode != null) {
-      Main.map.mapView.setNewCursor(mode.cursor, this);
-      Main.map.mapView.addMouseListener(mode);
-      Main.map.mapView.addMouseMotionListener(mode);
-      MapillaryUtils.updateHelpText();
     }
   }
 
@@ -231,15 +205,12 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
 
   @Override
   public void destroy() {
-    setMode(null);
     MapillaryRecord.getInstance().reset();
     MapillaryDownloader.stopAll();
     MapillaryMainDialog.getInstance().setImage(null);
     MapillaryMainDialog.getInstance().updateImage();
     MapillaryPlugin.setMenuEnabled(MapillaryPlugin.getExportMenu(), false);
     MapillaryPlugin.setMenuEnabled(MapillaryPlugin.getZoomMenu(), false);
-    Main.map.mapView.removeMouseListener(this.mode);
-    Main.map.mapView.removeMouseMotionListener(this.mode);
     Main.getLayerManager().removeActiveLayerChangeListener(this);
     if (Main.getLayerManager().getEditLayer() != null)
       Main.getLayerManager().getEditLayer().data.removeDataSetListener(this);
@@ -348,9 +319,6 @@ public final class MapillaryLayer extends AbstractModifiableLayer implements
       if (imageAbs.isVisible() && Main.map.mapView.contains(Main.map.mapView.getPoint(imageAbs.getMovingLatLon()))) {
         drawImageMarker(g, imageAbs);
       }
-    }
-    if (this.mode instanceof JoinMode) {
-      this.mode.paint(g, mv, box);
     }
   }
 

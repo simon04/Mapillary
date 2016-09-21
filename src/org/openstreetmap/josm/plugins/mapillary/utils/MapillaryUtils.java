@@ -279,9 +279,6 @@ public final class MapillaryUtils {
     } else {
       ret.append(tr("No images found"));
     }
-    if (MapillaryLayer.getInstance().mode != null) {
-      ret.append(" — ").append(tr(MapillaryLayer.getInstance().mode.toString()));
-    }
     if (PluginState.isUploading()) {
       ret.append(" — ").append(PluginState.getUploadString());
     }

@@ -12,6 +12,7 @@ import org.apache.commons.jcs.access.CacheAccess;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.cache.BufferedImageCacheEntry;
 import org.openstreetmap.josm.data.cache.JCSCacheManager;
+import org.openstreetmap.josm.gui.IconToggleButton;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
@@ -32,6 +33,7 @@ import org.openstreetmap.josm.plugins.mapillary.gui.MapillaryMainDialog;
 import org.openstreetmap.josm.plugins.mapillary.gui.MapillaryPreferenceSetting;
 import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader;
 import org.openstreetmap.josm.plugins.mapillary.io.download.MapillaryDownloader.DOWNLOAD_MODE;
+import org.openstreetmap.josm.plugins.mapillary.mapmode.SelectMode;
 import org.openstreetmap.josm.plugins.mapillary.oauth.MapillaryUser;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -220,6 +222,8 @@ public class MapillaryPlugin extends Plugin {
       setMenuEnabled(importMenu, false);
       setMenuEnabled(importIntoSequenceMenu, false);
     }
+
+    Main.map.addMapMode(new IconToggleButton(new SelectMode()));
   }
 
   /**
